@@ -1,0 +1,16 @@
+{
+  "@microsoft/generator-sharepoint": {
+    "plusBeta": false,
+    "isCreatingSolution": true,
+    "version": "1.14.0",
+    "libraryName": "tsm",
+    "libraryId": "cfc61b7b-79e9-4174-a0ac-89415e5850b8",
+    "environment": "spo",
+    "packageManager": "npm",
+    "solutionName": "tsm",
+    "solutionShortDescription": "tsm description",
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "componentType": "webpart"
+  }
+}

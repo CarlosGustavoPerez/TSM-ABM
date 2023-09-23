@@ -1,0 +1,41 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "Gestion de Proveedores",
+    "id": "cfc61b7b-79e9-4174-a0ac-89415e5850b8",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "developer": {
+      "name": "",
+      "websiteUrl": "",
+      "privacyUrl": "",
+      "termsOfUseUrl": "",
+      "mpnId": "Undefined-1.14.0"
+    },
+    
+    "metadata": {
+      "shortDescription": {
+        "default": "tsm description"
+      },
+      "longDescription": {
+        "default": "tsm description"
+      },
+      "screenshotPaths": [],
+      "videoUrl": "",
+      "categories": []
+    },
+    "features": [
+      {
+        "title": "tsm Feature",
+        "description": "The feature that activates elements of the tsm solution.",
+        "id": "613d4212-1dbe-4fd3-8642-77f1bcc20391",
+        "version": "1.0.0.0"
+      }
+    ]
+  },
+  "paths": {
+    "zippedPackage": "solution/tsm.sppkg"
+  }
+}

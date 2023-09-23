@@ -1,0 +1,19 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/config.2.0.schema.json",
+  "version": "2.0",
+  "bundles": {
+    "form-alta-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/formAlta/FormAltaWebPart.js",
+          "manifest": "./src/webparts/formAlta/FormAltaWebPart.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {},
+  "localizedResources": {
+    "FormAltaWebPartStrings": "lib/webparts/formAlta/loc/{locale}.js",
+    "ControlStrings": "node_modules/@pnp/spfx-controls-react/lib/loc/{locale}.js"
+  }
+}

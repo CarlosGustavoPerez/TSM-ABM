@@ -1,0 +1,88 @@
+@import '~office-ui-fabric-react/dist/sass/References.scss';
+
+.formAlta {
+  overflow: hidden;
+  padding: 1em;
+  color: "[theme:bodyText, default: #323130]";
+  color: var(--bodyText);
+  &.teams {
+    font-family: $ms-font-family-fallbacks;
+  }
+}
+.header {
+  background-image: url('./img/BannerTSM2.jpg');
+  background-size: cover;
+  width: 100%;
+  height: 170px;
+  border-bottom: 5px solid #0078D4;
+  position: relative; /* Agregamos posición relativa al contenedor principal */
+  background-position-y: -325px;
+}
+.colorTexto
+{
+  color: #0078D4;
+  font-size:18px;
+  margin: 0px;
+}
+
+.profile {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+  align-content: center;
+  position: relative;
+  
+  figure {
+    margin: 0;
+    img {
+      width: 59px;
+      height: 55px;
+      border-radius: 50%;
+      padding: 6px;
+      box-shadow: 0px 0px 20px rgba(darken(#1daaff, 20), .15);
+    }
+  } // end figure
+ 
+}
+.logoTSM {
+  position: absolute; /* Colocamos el logo en posición absoluta */
+  top: 0; /* Alineamos arriba */
+  right: 0; /* Alineamos a la derecha */
+  margin: 1.5rem;
+  width: 160px;
+  height: auto;
+}
+
+.width50{
+  width: 50% !important;
+}
+
+.width20{
+  width: 20% !important;
+}
+.width15{
+  width: 15% !important;
+}
+.incomplete-field {
+  border-color: red;
+  border-width: 1px;
+  border-style: solid;
+}
+.botonCerrar {
+  background-color: #0078D4;
+  color: white;
+}
+.botonAceptar {
+  transition: background-color 0.3s;
+  color: rgb(71, 158, 100) !important; 
+}
+.botonAceptar:hover {
+  color: rgb(5, 71, 32) !important; 
+}
+.botonRechazar {
+  color: rgb(179, 64, 53) !important; 
+  transition: background-color 0.3s;
+}
+.botonRechazar:hover {
+  color:  rgb(196, 40, 20) !important; 
+}
