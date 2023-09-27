@@ -323,13 +323,17 @@ const ProveedorPanel: React.FC<IFormularioREROProps> = (props:IFormularioREROPro
       let opcionPais : IDropdownOption = {key: item.Pais, text: item.Pais};
       let opcionProvincia : IDropdownOption = {key: item.Provincia, text: item.Provincia};
       let personeriaIguales: boolean;
-      const rubrosValue = item.Rubros;
-
+      var rubrosValue :IDropdownOption[]=[]; 
+     
+     // items.map((item)=>{  
+       // itemsComboRubro.push({key:item.Title, text:item.Title});
+        //});
+     item.Rubros.split(',').map((rubro, index) => {
+      rubrosValue.push({key:rubro.trim(), text:rubro.trim()})
+    
+      });
   // Dividir la cadena de rubros en elementos individuales
-  const rubrosArray = rubrosValue.split(',').map((rubro, index) => ({
-    key: index.toString(),
-    text: rubro.trim(),
-  }));
+  const rubrosArray = 
   console.log('rubrosArray');
   console.log(rubrosArray);
       for (const personeriaOpcion of personeriaOptions) {
@@ -356,7 +360,7 @@ const ProveedorPanel: React.FC<IFormularioREROProps> = (props:IFormularioREROPro
       setRazonSocial(item.RazonSocial);
       setNombreFantasia(item.NombreFantasia);
       setDdPersoneria(opcionPersoneria);
-      setDdRubros(rubrosArray);
+      setDdRubros(rubrosValue);
       setEmail(item.Email);
       setTelefono(item.Telefono);
       setPagWeb(item.PaginaWeb);
@@ -434,10 +438,7 @@ const ProveedorPanel: React.FC<IFormularioREROProps> = (props:IFormularioREROPro
         });
     }).then(()=> { 
       setRubrosOptions(itemsComboRubro);
-      console.log("itemsComboRubro 12");
-      console.log(itemsComboRubro);
-      console.log("rubrosOptions 12");
-      console.log(rubrosOptions);
+      
     });
 
     var itemsComboPais: IDropdownOption[]=[];

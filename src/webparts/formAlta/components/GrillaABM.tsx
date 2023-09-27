@@ -170,7 +170,7 @@ const GrillaABM: React.FC<IMasterABMProps> = (props: IMasterABMProps) => {
     const fechaCrecion = new Date(item.Created).toLocaleDateString();
     const responsableEmail =item.Author.EMail;
     return (
-      <div>
+      <div>12
         <div
           className={dynamicClass.dynamicStyle}
           data-is-focusable={true}
