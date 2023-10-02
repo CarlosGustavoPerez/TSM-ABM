@@ -15,6 +15,7 @@ import { sp } from "@pnp/sp/presets/all";
 
 export interface IFormAltaWebPartProps {
   registrosPorPagina: string;
+  VerSoloCreadoPor: string;
 }
 
 export default class FormAltaWebPart extends BaseClientSideWebPart<IFormAltaWebPartProps> {
@@ -37,7 +38,8 @@ export default class FormAltaWebPart extends BaseClientSideWebPart<IFormAltaWebP
       FormAlta,
       {
         context:this.context,
-        registrosPorPagina: this.properties.registrosPorPagina
+        registrosPorPagina: this.properties.registrosPorPagina,
+        VerSoloCreadoPor: this.properties.VerSoloCreadoPor
       }
     );
 
@@ -89,6 +91,10 @@ export default class FormAltaWebPart extends BaseClientSideWebPart<IFormAltaWebP
                 PropertyPaneTextField('registrosPorPagina', {
                   label:"Ingrese cuántos registros por página ver",
                   value:"15"
+                }),
+                PropertyPaneTextField('VerSoloCreadoPor', {
+                  label:"Visualizar solo los creado por el usuario",
+                  value:"NO"
                 })
                
               ]

@@ -17,6 +17,7 @@ import  { LivePersona } from "@pnp/spfx-controls-react";
 export interface IMasterABMProps {
   registrosPorPagina:string;
   context: any | null;
+  VerSoloCreadoPor:string;
 }
 const theme: ITheme = getTheme();
 const { palette, semanticColors, fonts } = theme;
@@ -90,8 +91,20 @@ const GrillaABM: React.FC<IMasterABMProps> = (props: IMasterABMProps) => {
       setCantRegistros(parseInt(props.registrosPorPagina));
     }
     CargarProveedores();
+    let search = window.location.search;
+    let params = new URLSearchParams(search);
+    let IdSolicitud = params.get('IdSolicitud');
+    if(IdSolicitud != null)
+    {
+      abrirFormulario(IdSolicitud);
+    }
+
   }, []);
-  
+  const abrirFormulario = async (sId) =>{
+    setProveedorSeleccionado(sId);
+    setIsPanelOpen(true);
+  };
+
   const [cantRegistros, setCantRegistros] = useState(10);
   const [proveedores, setProveedores] = useState([]);
   const [todosLosProveedores, setTodosLosProveedores] = useState([]);
@@ -112,11 +125,35 @@ const GrillaABM: React.FC<IMasterABMProps> = (props: IMasterABMProps) => {
     setIsPanelOpen(true);
   };
   const CargarProveedores = async () => {
-    const response = await sp.web.lists
-    .getByTitle('ABMProveedores')
-    .items.select('ID', 'RazonSocial', 'Estado', 'Created', 'Author/EMail')
-    .expand('Author')
-    .getAll();
+    let response=null
+    
+    if(props.VerSoloCreadoPor=="SI")
+    {
+      let UserId;
+      UserId =await (await sp.web.currentUser.get()).Id;
+     
+    
+      response = await sp.web.lists
+      .getByTitle('ABMProveedores')
+      .items.filter("Author/Id eq '" + UserId+ "'").select('ID', 'RazonSocial', 'Estado', 'Created', 'Author/EMail')
+      .expand('Author')
+      .getAll();
+
+     
+    }
+    else
+    {
+      response = await sp.web.lists
+      .getByTitle('ABMProveedores')
+      .items.select('ID', 'RazonSocial', 'Estado', 'Created', 'Author/EMail')
+      .expand('Author')
+      .getAll();
+ 
+    }
+    
+    
+    
+    
     response.sort((a, b) => b.ID - a.ID);
     setProveedores(response.slice(0, cantRegistros));
     setTodosLosProveedores(response);
@@ -170,7 +207,7 @@ const GrillaABM: React.FC<IMasterABMProps> = (props: IMasterABMProps) => {
     const fechaCrecion = new Date(item.Created).toLocaleDateString();
     const responsableEmail =item.Author.EMail;
     return (
-      <div>12
+      <div>
         <div
           className={dynamicClass.dynamicStyle}
           data-is-focusable={true}
@@ -206,7 +243,7 @@ const GrillaABM: React.FC<IMasterABMProps> = (props: IMasterABMProps) => {
           </div> */}
           <div className={classNames.itemContent}>
             <div className={classNames.itemName}>{item.RazonSocial}</div>
-            <div className={classNames.itemIndex}>{`Item ${item.Id}`}</div>
+            <div className={classNames.itemIndex}>{`ID: ${item.Id}`}</div>
             
           </div>
           <div className={classNames.fechaCreacion}>Creado: {fechaCrecion}</div>

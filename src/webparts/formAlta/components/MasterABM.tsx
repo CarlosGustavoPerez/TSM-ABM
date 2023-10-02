@@ -10,7 +10,7 @@ export default class MasterABM extends React.Component<IMasterABMProps, {}> {
 
     return (
       <section>
-       <GrillaABM registrosPorPagina={this.props.registrosPorPagina} context={this.props.context}/>
+       <GrillaABM registrosPorPagina={this.props.registrosPorPagina} VerSoloCreadoPor={this.props.VerSoloCreadoPor} context={this.props.context}/>
       </section>
     );
   }

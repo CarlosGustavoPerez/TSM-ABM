@@ -1,5 +1,12 @@
 # tsm
 
+2/10/2023 - Juan Emilio Martinez
+
+-Agregado de Parametro solo creado por
+-Correccion de seleccion de items multiples en combo
+
+
+
 ## Summary
 
 Short summary on functionality and used technologies.

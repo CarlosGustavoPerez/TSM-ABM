@@ -406,6 +406,7 @@ const ProveedorPanel: React.FC<IFormularioREROProps> = (props:IFormularioREROPro
       .select("Id, Descripcion, Created, Author/LastName, Author/FirstName")
       .expand("Author")
       .get();
+     
     const historial = [];
     const FechaHistorial = new Date(proveedorInfo["Created"].toString());
     
@@ -413,7 +414,7 @@ const ProveedorPanel: React.FC<IFormularioREROProps> = (props:IFormularioREROPro
       Descripcion: "Registro creado ",
       Author: proveedorInfo.Author.FirstName + " " + proveedorInfo.Author.LastName,
       Created: FechaHistorial.toLocaleDateString() + ' ' + FechaHistorial.toLocaleTimeString(),
-      Id: -1
+      Igd: -1
     });
 
     historialItems.forEach((historialItem) => {
@@ -425,7 +426,8 @@ const ProveedorPanel: React.FC<IFormularioREROProps> = (props:IFormularioREROPro
         Id: historialItem["Id"]
       });
     });
-    historial.sort((a, b) => a.Id - b.Id);
+  
+    historial.sort((a, b) => b.Id - a.Id);
     setCargarHistorial(historial);
   };
   const cargarCombos = async () => {
