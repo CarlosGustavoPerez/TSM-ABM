@@ -1,4 +1,8 @@
 # tsm
+10/10/2023 - Carlos Gustavo Perez
+
+-Modificacion estilo botones Aprobar/Rechazar
+
 
 2/10/2023 - Juan Emilio Martinez
 

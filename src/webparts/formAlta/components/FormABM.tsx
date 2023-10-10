@@ -5,7 +5,7 @@ import {  Pivot,
           Dropdown, 
           TextField, 
           PrimaryButton,
-          ActionButton, 
+          DefaultButton, 
           IDropdownOption,
           MessageBar, 
           MessageBarType,
@@ -695,8 +695,8 @@ const ProveedorPanel: React.FC<IFormularioREROProps> = (props:IFormularioREROPro
   const cerrar = async () => {
     props.recargarGrilla();
   };
-  const aprobar: IIconProps = { iconName: 'CheckMark', className: styles.botonAceptar};
-  const rechazar: IIconProps = { iconName: 'Cancel', className: styles.botonRechazar };
+  const aprobar: IIconProps = { iconName: 'CheckMark'};
+  const rechazar: IIconProps = { iconName: 'Cancel' };
   return (
     <div style={{ padding: '20px' }}>
       <div className={styles.header}>
@@ -899,9 +899,9 @@ const ProveedorPanel: React.FC<IFormularioREROProps> = (props:IFormularioREROPro
               multiline 
               rows={5}  
             />
-            <Stack horizontal style={{ marginTop: 15 }}>
-              <ActionButton iconProps={aprobar} text="Aprobar" className={styles.botonAceptar} onClick={()  =>AprobarRechazar('APROBADO')}/>
-              <ActionButton iconProps={rechazar} text="Rechazar" className={styles.botonRechazar} onClick={() =>AprobarRechazar('RECHAZADO')}/>
+            <Stack horizontal style={{ marginTop: 15, justifyContent: 'center' }}>
+              <DefaultButton iconProps={aprobar} text="Aprobar" className={styles.botonAceptar} onClick={()  =>AprobarRechazar('APROBADO')}/>
+              <DefaultButton iconProps={rechazar} text="Rechazar" className={styles.botonRechazar} onClick={() =>AprobarRechazar('RECHAZADO')}/>
             </Stack>
           </PivotItem>
         )}

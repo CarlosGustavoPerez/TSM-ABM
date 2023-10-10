@@ -73,16 +73,20 @@
   color: white;
 }
 .botonAceptar {
+  background-color:rgb(71, 158, 100);
   transition: background-color 0.3s;
-  color: rgb(71, 158, 100) !important; 
+  color: white !important;
+  border:none;
 }
 .botonAceptar:hover {
-  color: rgb(5, 71, 32) !important; 
+  background-color: rgb(7, 99, 45) !important; 
 }
 .botonRechazar {
-  color: rgb(179, 64, 53) !important; 
+  background-color: rgb(179, 64, 53);
   transition: background-color 0.3s;
+  color: white !important;
+  border:none;
 }
 .botonRechazar:hover {
-  color:  rgb(196, 40, 20) !important; 
+  background-color:  rgb(196, 40, 20) !important; 
 }
