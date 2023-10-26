@@ -1,18 +1,18 @@
 import * as React from 'react';
 import styles from './EstilosABM.module.scss';
 import { useState, useEffect } from 'react';
-import { Persona, PersonaSize,FocusZone, FocusZoneDirection,Panel,PanelType,DefaultButton,IIconProps,ITextFieldStyleProps, ITextFieldStyles, ILabelStyles, ILabelStyleProps,  } from '@fluentui/react';
+import { DefaultButton, Persona, PersonaSize,FocusZone, FocusZoneDirection,Panel,PanelType,MessageBar,IIconProps,ITextFieldStyleProps, ITextFieldStyles, ILabelStyles, ILabelStyleProps,  } from '@fluentui/react';
 import { Pagination } from '@pnp/spfx-controls-react/lib/pagination';
 import { getRTL } from '@fluentui/react/lib/Utilities';
 import { TextField } from '@fluentui/react/lib/TextField';
-import { Image, ImageFit } from '@fluentui/react/lib/Image';
 import { Icon } from '@fluentui/react/lib/Icon';
 import { List } from '@fluentui/react/lib/List';
 import { ITheme, mergeStyleSets, getTheme } from '@fluentui/react/lib/Styling';
 import { sp } from "@pnp/sp/presets/all";
 import FormABM from './FormABM';
-import defaultimg from "./../assets/imagenPerfil.png"
 import  { LivePersona } from "@pnp/spfx-controls-react";
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 
 export interface IMasterABMProps {
   registrosPorPagina:string;
@@ -90,6 +90,7 @@ const GrillaABM: React.FC<IMasterABMProps> = (props: IMasterABMProps) => {
     if(props.registrosPorPagina != null){
       setCantRegistros(parseInt(props.registrosPorPagina));
     }
+    usuarioProveedores();
     CargarProveedores();
     let search = window.location.search;
     let params = new URLSearchParams(search);
@@ -104,18 +105,31 @@ const GrillaABM: React.FC<IMasterABMProps> = (props: IMasterABMProps) => {
     setProveedorSeleccionado(sId);
     setIsPanelOpen(true);
   };
-
+  const usuarioProveedores = async()=>{
+    let UsuarioAvanzadoEncontrado: boolean = false;
+    let groups = await sp.web.currentUser.groups();
+    await Promise.all(groups.map((grupos)=>{
+      
+      if(grupos.Title == "UsuariosAvanzadosTSM"  ){
+        UsuarioAvanzadoEncontrado = true;
+      }
+    })).then(()=>{
+      
+      if(UsuarioAvanzadoEncontrado == true){
+        setPerteneceGrupoUsAv(true);
+      }
+    });
+  };
   const [cantRegistros, setCantRegistros] = useState(10);
   const [proveedores, setProveedores] = useState([]);
   const [todosLosProveedores, setTodosLosProveedores] = useState([]);
   const [proveedoresFiltrados, setProveedoresFiltrados] = useState([]);
   const [proveedorSeleccionado, setProveedorSeleccionado] = useState(null);
   const [isPanelOpen, setIsPanelOpen] = useState(false);
-  //const [fotoUsuario, setFotoUsuario] = useState();
-
-  
   const [cantidadPaginas, setCantidadPaginas] = useState("1");
+  const [perteneceGrupoUsAv, setPerteneceGrupoUsAv] = useState(false);
 
+  const iconoExcel: IIconProps = { iconName: 'ExcelLogoInverse' };
   const cambiarPagina = async (page: number): Promise<void> => {
     const irApagina= Math.ceil(page);
     setProveedores(todosLosProveedores.slice(((irApagina-1)*cantRegistros), irApagina*cantRegistros));
@@ -126,20 +140,15 @@ const GrillaABM: React.FC<IMasterABMProps> = (props: IMasterABMProps) => {
   };
   const CargarProveedores = async () => {
     let response=null
-    
     if(props.VerSoloCreadoPor=="SI")
     {
       let UserId;
       UserId =await (await sp.web.currentUser.get()).Id;
-     
-    
       response = await sp.web.lists
       .getByTitle('ABMProveedores')
       .items.filter("Author/Id eq '" + UserId+ "'").select('ID', 'RazonSocial', 'Estado', 'Created', 'Author/EMail')
       .expand('Author')
       .getAll();
-
-     
     }
     else
     {
@@ -148,12 +157,7 @@ const GrillaABM: React.FC<IMasterABMProps> = (props: IMasterABMProps) => {
       .items.select('ID', 'RazonSocial', 'Estado', 'Created', 'Author/EMail')
       .expand('Author')
       .getAll();
- 
     }
-    
-    
-    
-    
     response.sort((a, b) => b.ID - a.ID);
     setProveedores(response.slice(0, cantRegistros));
     setTodosLosProveedores(response);
@@ -192,14 +196,6 @@ const GrillaABM: React.FC<IMasterABMProps> = (props: IMasterABMProps) => {
       display: 'flex',
       borderLeft: `4px solid ${stateColors[item.Estado] || 'transparent'}`, // Color de borde basado en el estado
     };
-    const obtenerIniciales = (nombre) => {
-      const palabras = nombre.split(' ');
-      if (palabras.length > 1) {
-        return palabras[0][0].toUpperCase() + palabras[1][0].toUpperCase();
-      } else {
-        return nombre[0].toUpperCase();
-      }
-    };
     // Crear una clase CSS dinámica
     const dynamicClass = mergeStyleSets({
       dynamicStyle: itemCellStyle,
@@ -213,13 +209,6 @@ const GrillaABM: React.FC<IMasterABMProps> = (props: IMasterABMProps) => {
           data-is-focusable={true}
           onClick={() => onItemClicked(item.Id)}
         >
-          {/* <Image
-            className={classNames.itemImage}
-            src="https://res.cdn.office.net/files/fabric-cdn-prod_20230815.002/office-ui-fabric-react-assets/fluent-placeholder.svg"
-            width={50}
-            height={50}
-            imageFit={ImageFit.cover}
-          /> */}
           <LivePersona upn={responsableEmail}
               template={
                 <>
@@ -229,18 +218,6 @@ const GrillaABM: React.FC<IMasterABMProps> = (props: IMasterABMProps) => {
               }
               serviceScope={props.context.serviceScope}
             />
-          {/* <div className={styles.profile}>
-            <figure>
-            <img
-              src={`https://termoelectricajsm.sharepoint.com/sites/PortalProveedoresDesarrollo/_layouts/15/userphoto.aspx?size=L&username=${item.Author.EMail}`}
-              onError={(e) => {
-                (e.target as any).src = `data:image/svg+xml;charset=UTF-8,<svg xmlns='http://www.w3.org/2000/svg' width='50' height='50'><circle cx='25' cy='25' r='20' fill='#0078D4' /><text x='50%' y='50%' text-anchor='middle' dy='0.3em' font-size='20' font-family='Arial, sans-serif' fill='#FFFFFF'>${obtenerIniciales(item.Author.EMail)}</text></svg>`;
-              }}
-              alt=""
-            />
-            </figure>
-            
-          </div> */}
           <div className={classNames.itemContent}>
             <div className={classNames.itemName}>{item.RazonSocial}</div>
             <div className={classNames.itemIndex}>{`ID: ${item.Id}`}</div>
@@ -260,19 +237,67 @@ const GrillaABM: React.FC<IMasterABMProps> = (props: IMasterABMProps) => {
     setIsPanelOpen(false);
     CargarProveedores(); 
   };
+  const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';  
+  const fileExtension = '.xlsx';  
+  var Heading = [["Id", "Razon Social","Cuit","Nombre Fantasia","Personería","Rubros","Dirección de e-mail","Teléfono","Pagina Web","País","Provincia","Ciudad","Cod. Postal","Calle","Altura","Depto","Piso"]];  
+  const ExportarRegistros = async () => {
+    const RegistrosABMProveedores = await sp.web.lists.getByTitle("ABMProveedores").items
+      .select('Id,RazonSocial,Cuit,NombreFantasia,Personeria,Rubros,Email,Telefono,PaginaWeb,Pais,Provincia,Ciudad,CodigoPostal,Calle,Altura,Departamento,Piso')
+      .get();
+
+    const RegistrosProveedores = RegistrosABMProveedores.map(proveedor => ({
+      Id: proveedor.Id,
+      RazonSocial: proveedor.RazonSocial,
+      Cuit:proveedor.Cuit,
+      NombreFantasia: proveedor.NombreFantasia,
+      Personeria: proveedor.Personeria,
+      Rubros: proveedor.Rubros,
+      Email: proveedor.Email,
+      Telefono: proveedor.Telefono,
+      PaginaWeb: proveedor.PaginaWeb,
+      Pais: proveedor.Pais,
+      Provincia: proveedor.Provincia,
+      Ciudad: proveedor.Ciudad,
+      CodigoPostal: proveedor.CodigoPostal,
+      Calle: proveedor.Calle,
+      Altura: proveedor.Altura,
+      Departamento: proveedor.Departamento,
+      Piso: proveedor.Piso,
+    }));
+
+    const ws = XLSX.utils.book_new();
+    XLSX.utils.sheet_add_aoa(ws, Heading);
+    XLSX.utils.sheet_add_json(ws, RegistrosProveedores, { origin: 'A2', skipHeader: true });
+
+    const wb = { Sheets: { 'ExportacionProveedores': ws }, SheetNames: ['ExportacionProveedores'] };
+    const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+    const data = new Blob([excelBuffer], { type: fileType });
+    saveAs(data, 'ExportacionProveedores' + fileExtension);
+  };
+
   return (
+    
     <FocusZone direction={FocusZoneDirection.vertical}>
-       <DefaultButton 
-        text="Nuevo Proveedor" 
-        onClick={() => onItemClicked(0)} 
-        style={{ backgroundColor: '#0078D4', color: 'white' , border: 'none'}}
-        iconProps={NuevaEmision} />
-      <TextField
-        label={'Filtre por razón social' + resultCountText}
-        onChange={filtroCambia}
-        styles={getStyles} 
-      />
-      <List items={proveedores} onRenderCell={renderProveedor}/>
+      {perteneceGrupoUsAv && (
+        <div className={styles.divBarraSuperior}>
+          <DefaultButton className={styles.btnExcel} iconProps={iconoExcel} onClick={() => ExportarRegistros()} ariaDescription="Exportar" >Exportar</DefaultButton>
+        </div>
+      )}
+      {proveedores.length === 0 ? (
+        <MessageBar>
+        No existen registros.
+      </MessageBar>
+      
+        ) : (
+    <div>
+      
+        <TextField
+          label={'Filtre por razón social' + resultCountText}
+          onChange={filtroCambia}
+          styles={getStyles} 
+        />
+        
+      <List items={proveedores} onRenderCell={renderProveedor} />
       <Pagination
         currentPage={1}
         totalPages={parseInt(cantidadPaginas)}
@@ -288,10 +313,13 @@ const GrillaABM: React.FC<IMasterABMProps> = (props: IMasterABMProps) => {
       >
         <FormABM 
           id={proveedorSeleccionado} 
-          recargarGrilla={()=> recargarGrilla()}
+          recargarGrilla={()=> recargarGrilla()
+          }
+          context={props.context}
           />
       </Panel>
-      
+      </div>
+      )}
     </FocusZone>
   );
 };

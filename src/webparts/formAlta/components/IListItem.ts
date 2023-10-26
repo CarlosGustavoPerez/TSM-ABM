@@ -3,6 +3,7 @@ import { IDropdownOption } from 'office-ui-fabric-react/lib/components/Dropdown'
 export interface IListItemGeneral {
     RazonSocial: string;
     NombreFantasia: string;
+    Cuit:string;
     Personeria:string;
     Rubros:string;
     Estado:string;
@@ -19,4 +20,11 @@ export interface IListItemGeneral {
     Piso:string;
     Observaciones:string;
     Created: string;
+    CrearUsuario:string;
 }
+export interface IListItemComentarios {
+    Comentario:string;
+    Author:{EMail:string, FirstName:string,LastName:string};
+    Created: string;
+}
+

@@ -13,12 +13,16 @@ import {  Pivot,
           Stack,
           IIconProps,
           Icon,
-          Separator
+          Separator,
+          Dialog, 
+          DialogFooter,
+          DialogType
         } from '@fluentui/react';
+import { PeoplePicker, PrincipalType } from "@pnp/spfx-controls-react/lib/PeoplePicker";
 import styles from './EstilosABM.module.scss';
 import LogoBanner from './img/TSM.png';
 import { sp, IItemAddResult  } from "@pnp/sp/presets/all";
-import { IListItemGeneral } from './IListItem'; 
+import { IListItemGeneral,IListItemComentarios } from './IListItem'; 
 import { FilePond, registerPlugin } from 'react-filepond';
 import 'filepond/dist/filepond.min.css';
 import * as FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
@@ -27,10 +31,17 @@ import { Label } from 'office-ui-fabric-react';
 import { ITheme, mergeStyleSets, getTheme } from '@fluentui/react/lib/Styling';
 
 registerPlugin(FilePondPluginFileValidateType);
+interface ProveedorItem {
+  Observaciones: string;
+  Estado: string;
+  CrearUsuario?: string;
+  ProveedorNotificado: string;
+}
 
 export interface IFormularioREROProps{
   id: string | null;
   recargarGrilla: () => void;
+  context: any | null;
 }
 const theme: ITheme = getTheme();
 const { palette, semanticColors, fonts } = theme;
@@ -68,10 +79,11 @@ const ProveedorPanel: React.FC<IFormularioREROProps> = (props:IFormularioREROPro
   const [idRegistro, setIdRegistro] = useState("");
   const [historialVisible, setHistorialVisible] = useState(false);
   const [aprobacionesVisible, setAprobacionesVisible] = useState(false);
-
+  const [perteneceGrupoUsAv, setPerteneceGrupoUsAv] = useState(false);
   const [estado, setEstado] = useState("");
   const [razonSocial, setRazonSocial] = useState("");
   const [nombreFantasia, setNombreFantasia] = useState("");
+  const [cuit, setCuit] = useState("");
   const [email, setEmail] = useState("");
   const [telefono, setTelefono] = useState("");
   const [pagweb, setPagWeb] = useState("");
@@ -85,38 +97,44 @@ const ProveedorPanel: React.FC<IFormularioREROProps> = (props:IFormularioREROPro
   const [comentario, setComentario] = useState("");
   const [provinciasOpciones, setProvinciasOpciones] = useState([]);
   const [creado, setCreado] = useState("");
-
+  const [crearUsuario, setCrearUsuario] = useState("");
+  const [usuarioAvanzadoComentarioCarga, setUsuarioAvanzadoComentarioCarga] = useState([]);
+  const [usuarioAvanzadoComentarioAsignado, setUsuarioAvanzadoComentarioAsignado] = useState([]);
+  const [dialogComentarios, setDialogComentarios] = useState(true);
+  const [detalleComentario, setDetalleComentario] = useState("");
+  const [fechaComentario, setFechaComentario] = useState("");
+  const [creadoPor, setCreadoPor] = useState("");
   const [ddPersoneria, setDdPersoneria] = useState<IDropdownOption>();
   const [rubrosOptions, setRubrosOptions] = useState<IDropdownOption[]>([]);
   const [ddRubros, setDdRubros] = useState<IDropdownOption[]>([]);
   const [paisesOpciones, setPaisesOpciones] = useState<IDropdownOption[]>([]);
   const [ddPaises, setDdPaises] = useState<IDropdownOption>();
   const [ddProvincias, setDdProvincias] = useState<IDropdownOption>();
-
+  const [comentarioUsuarioAvanzado, setComentarioUsuarioAvanzado] = useState("");
   const [visibleCboProv, setVisibleCboProv] = useState(true);
   const [mostrarGuardar, setMostrarGuardar] = useState(false);
   const [mostrarAnterior, setMostrarAnterior] = useState(false);
   const [mostrarSiguiente, setMostrarSiguiente] = useState(true);
-  
   const [activarDatosContacto, setActivarDatosContacto] = useState(true);
   const [activarAdjuntos, setActivarAdjuntos] = useState(true);
   const [activarHistorial, setActivarHistorial] = useState(true);
   const [activarAprobaciones, setActivarAprobaciones] = useState(true);
+  const [activarComentarios, setActivarComentarios] = useState(true);
   const [selectedTab, setSelectedTab] = useState('datosGenerales');
- 
-
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState(MessageBarType.error); 
   const [messageVisible, setMessageVisible] = useState(false);
   const [adjuntarArchivos, setAdjuntarArchivos] = useState([]);
   const [cargarArchivos, setCargarArchivos] = useState([]);
   const [cargarHistorial, setCargarHistorial] = useState([]);
+  const [cargarComentarios, setCargarComentarios] = useState([]);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const [fileToDelete, setFileToDelete] = useState('');
-
-
   const _handleChangeComentarios = (changedvalue) => {
     setComentario(changedvalue.target.value);
+  };
+  const _handleChangeComentariosUsuarioAvanzado = (changedvalue) => {
+    setComentarioUsuarioAvanzado(changedvalue.target.value);
   };
   const handleUpdateFiles = (fileItems) => {
     setAdjuntarArchivos(fileItems.map((fileItem) => fileItem.file));
@@ -146,7 +164,6 @@ const ProveedorPanel: React.FC<IFormularioREROProps> = (props:IFormularioREROPro
       setDdRubros(updatedSelections); // Actualizar el estado con las selecciones actualizadas
     }
   };
-  
   const onChangePais = (event: React.FormEvent<HTMLDivElement>, item: IDropdownOption): void => {
     setDdPaises(item);
     if(item.key.toString() === 'Argentina'){
@@ -165,6 +182,9 @@ const ProveedorPanel: React.FC<IFormularioREROProps> = (props:IFormularioREROPro
   };
   const _NombreFantasiaCambia = (changedvalue) => {
     setNombreFantasia(changedvalue.target.value);
+  };
+  const _CuitCambia = (changedvalue) => {
+    setCuit(changedvalue.target.value);
   };
   const _EmailCambia = (changedvalue) => {
     setEmail(changedvalue.target.value);
@@ -196,6 +216,13 @@ const ProveedorPanel: React.FC<IFormularioREROProps> = (props:IFormularioREROPro
   const _PisoCambia = (changedvalue) => {
     setPiso(changedvalue.target.value);
   };
+  const _UsuarioNotificarComentarioCambia = (items: any[]) => {
+    let userarrPA: string[] = [];
+    items.forEach(user => {
+      userarrPA.push( user.id );
+    });
+    setUsuarioAvanzadoComentarioAsignado(userarrPA);
+  };
   const viewFields: IViewField[] = [
     {
       name: 'name',  // Nombre del campo que contiene los nombres de archivo adjunto
@@ -207,11 +234,9 @@ const ProveedorPanel: React.FC<IFormularioREROProps> = (props:IFormularioREROPro
         sp.web.get().then(sitio => {
           sSitioURL = sitio.Url;
         });
-       let urlArchivo= 'https://termoelectricajsm.sharepoint.com/sites/PortalProveedoresDesarrollo/Lists/ABMProveedores/Attachments/'+idRegistro+'/'+item.name;
         return (
-          <a
-            href={urlArchivo} // Establece la URL del enlace como el nombre del archivo o la URL del archivo
-            target="_blank" // Abre el enlace en una nueva pestaña
+          <a style={{ cursor: 'pointer' }}
+            onClick={() => window.open(`https://termoelectricajsm.sharepoint.com/sites/PortalProveedoresDesarrollo/Lists/ABMProveedores/Attachments/${idRegistro}/${item.name}`, '_blank')}
           >
             {item.name}
           </a>
@@ -251,6 +276,52 @@ const ProveedorPanel: React.FC<IFormularioREROProps> = (props:IFormularioREROPro
       minWidth: 120,    
    },
   ];
+  const camposListComentarios: IViewField[]=[
+    {    
+      name: "Comentario",    
+      displayName: "Comentario",    
+   
+      isResizable: true,    
+      sorting: true,    
+      minWidth: 0,    
+      maxWidth: 400   
+    },
+   {    
+     name: "Author",    
+     displayName: "Creado por",    
+    // linkPropertyName: "c",    
+     isResizable: true,    
+     sorting: true,    
+     minWidth: 0,    
+     maxWidth: 150    
+   },
+   {    
+     name: "Created",    
+     displayName: "Fecha",    
+    // linkPropertyName: "c",    
+     isResizable: true,    
+     sorting: true,    
+     minWidth: 0,    
+     maxWidth: 150    
+   },
+   {    
+     name: "Id",    
+     displayName: "Ver",    
+    // linkPropertyName: "c",    
+     isResizable: true,    
+     sorting: true,    
+     minWidth: 0,    
+     maxWidth: 50   ,
+     render: (item: any) => {
+       const sID= item["Id"] ;
+       return   <Icon onClick={()=> VisibleDetalleComentario(sID)} className={styles.verMasComentario} iconName={'ZoomIn'} title="Ver Más" />
+     
+     }     
+   },
+  ];
+  const dialogContentProps = {
+    type: DialogType.largeHeader,
+  };
   useEffect(() => {
     const fetchData = async () => {
     cargarCombos();
@@ -258,6 +329,7 @@ const ProveedorPanel: React.FC<IFormularioREROProps> = (props:IFormularioREROPro
     setActivarAdjuntos(true);
     setActivarHistorial(true);
     setActivarAprobaciones(true);
+    setActivarComentarios(true);
     setEstado('CARGA');
     if(props.id != '0')
     {
@@ -270,6 +342,7 @@ const ProveedorPanel: React.FC<IFormularioREROProps> = (props:IFormularioREROPro
       setActivarHistorial(false);
       setActivarAprobaciones(false);
       setMostrarSiguiente(false);
+      setActivarComentarios(false);
     }
     else{
       setEstado("PENDIENTE");
@@ -278,6 +351,22 @@ const ProveedorPanel: React.FC<IFormularioREROProps> = (props:IFormularioREROPro
 
   fetchData();
   }, []);
+  const VisibleDetalleComentario =async (sID)=>{
+    console.log('entro a ver comentarios');
+    console.log(sID);
+    setDialogComentarios(false);
+    await sp.web.lists.getByTitle("ABMProveedoresComentarios").items
+    .getById(parseInt(sID))
+    .select('Created,Comentario,Author/FirstName,Author/LastName,Author/Id,Id').expand('Author')
+    .get().then((item: IListItemComentarios) : void => { 
+      setFechaComentario(new Date(item.Created).toLocaleDateString());
+      setDetalleComentario(item.Comentario);
+      setCreadoPor(item.Author.FirstName + " " + item.Author.LastName,);
+     });
+  }
+  const CerrarComentario = async ()=>{
+    setDialogComentarios(true);
+  }
   const handleDeleteFile = async (fileName) => {
     setFileToDelete(fileName); // Guarda el nombre del archivo que se va a eliminar
     setShowDeleteConfirmation(true); // Muestra el mensaje de confirmación
@@ -301,15 +390,22 @@ const ProveedorPanel: React.FC<IFormularioREROProps> = (props:IFormularioREROPro
     setFileToDelete('');
   };
   const usuarioProveedores = async()=>{
-    let UsuarioEncontrado: boolean = false;
+    let UsuarioProveedoresEncontrado: boolean = false;
+    let UsuarioAvanzadoEncontrado: boolean = false;
     let groups = await sp.web.currentUser.groups();
     await Promise.all(groups.map((grupos)=>{
       if(grupos.Title == "ProveedoresTSM"  ){
-        UsuarioEncontrado = true;
-      };
+        UsuarioProveedoresEncontrado = true;
+      }
+      if(grupos.Title == "UsuariosAvanzadosTSM"  ){
+        UsuarioAvanzadoEncontrado = true;
+      }
     })).then(()=>{
-      if(UsuarioEncontrado == true){
+      if(UsuarioProveedoresEncontrado == true){
         setAprobacionesVisible(true);
+      }
+      if(UsuarioAvanzadoEncontrado == true){
+        setPerteneceGrupoUsAv(true);
       }
     });
   };
@@ -317,20 +413,15 @@ const ProveedorPanel: React.FC<IFormularioREROProps> = (props:IFormularioREROPro
     setIdRegistro(sId);
     await sp.web.lists.getByTitle("ABMProveedores").items
     .getById(parseInt(sId))
-    .select("Estado,RazonSocial,NombreFantasia,Personeria,Rubros,Email,Telefono,PaginaWeb,Pais,Provincia,Ciudad,CodigoPostal,Calle,Altura,Departamento,Piso,Observaciones,Created")
+    .select("Estado,RazonSocial,Cuit,NombreFantasia,Personeria,Rubros,Email,Telefono,PaginaWeb,Pais,Provincia,Ciudad,CodigoPostal,Calle,Altura,Departamento,Piso,Observaciones,Created,CrearUsuario")
     .get().then((item: IListItemGeneral) : void => {  
       let opcionPersoneria : IDropdownOption = {key: item.Personeria, text: item.Personeria};
       let opcionPais : IDropdownOption = {key: item.Pais, text: item.Pais};
       let opcionProvincia : IDropdownOption = {key: item.Provincia, text: item.Provincia};
       let personeriaIguales: boolean;
       var rubrosValue :IDropdownOption[]=[]; 
-     
-     // items.map((item)=>{  
-       // itemsComboRubro.push({key:item.Title, text:item.Title});
-        //});
-     item.Rubros.split(',').map((rubro, index) => {
-      rubrosValue.push({key:rubro.trim(), text:rubro.trim()})
-    
+      item.Rubros.split(',').map((rubro, index) => {
+        rubrosValue.push({key:rubro.trim(), text:rubro.trim()})
       });
   // Dividir la cadena de rubros en elementos individuales
   const rubrosArray = 
@@ -359,6 +450,7 @@ const ProveedorPanel: React.FC<IFormularioREROProps> = (props:IFormularioREROPro
       setEstado(item.Estado);
       setRazonSocial(item.RazonSocial);
       setNombreFantasia(item.NombreFantasia);
+      setCuit(item.Cuit)
       setDdPersoneria(opcionPersoneria);
       setDdRubros(rubrosValue);
       setEmail(item.Email);
@@ -380,6 +472,7 @@ const ProveedorPanel: React.FC<IFormularioREROProps> = (props:IFormularioREROPro
       setDepto(item.Departamento);
       setPiso(item.Piso);
       setComentario(item.Observaciones);
+      setCrearUsuario(item.CrearUsuario);
     });
     const item = await sp.web.lists.getByTitle('ABMProveedores')
       .items.getById(parseInt(sId))
@@ -394,13 +487,14 @@ const ProveedorPanel: React.FC<IFormularioREROProps> = (props:IFormularioREROPro
       setCargarArchivos(archivoNames);
     }
     CargarHistorial(props.id);
+    CargarComentarios(props.id);
   };
   const CargarHistorial = async (sId) => {
-    const proveedorInfo = await sp.web.lists.getByTitle("ABMProveedores").items
-      .getById(parseInt(sId))
-      .select("Created, Author/LastName, Author/FirstName")
-      .expand("Author")
-      .get();
+    // const proveedorInfo = await sp.web.lists.getByTitle("ABMProveedores").items
+    //   .getById(parseInt(sId))
+    //   .select("Created, Author/LastName, Author/FirstName")
+    //   .expand("Author")
+    //   .get();
       const historialItems = await sp.web.lists.getByTitle("HistorialABMProveedores").items
       .filter(`IdProveedor eq ${sId}`)
       .select("Id, Descripcion, Created, Author/LastName, Author/FirstName")
@@ -408,15 +502,6 @@ const ProveedorPanel: React.FC<IFormularioREROProps> = (props:IFormularioREROPro
       .get();
      
     const historial = [];
-    const FechaHistorial = new Date(proveedorInfo["Created"].toString());
-    
-    historial.push({
-      Descripcion: "Registro creado ",
-      Author: proveedorInfo.Author.FirstName + " " + proveedorInfo.Author.LastName,
-      Created: FechaHistorial.toLocaleDateString() + ' ' + FechaHistorial.toLocaleTimeString(),
-      Igd: -1
-    });
-
     historialItems.forEach((historialItem) => {
       const FechaHistorialItem = new Date(historialItem["Created"].toString());
       historial.push({
@@ -429,6 +514,27 @@ const ProveedorPanel: React.FC<IFormularioREROProps> = (props:IFormularioREROPro
   
     historial.sort((a, b) => b.Id - a.Id);
     setCargarHistorial(historial);
+  };
+  const CargarComentarios = async (sId) => {
+    const comentariosItems = await sp.web.lists.getByTitle("ABMProveedoresComentarios").items
+    .filter(`IdRelacionado eq ${sId}`)
+    .select("Id, Comentario, Created, Author/LastName, Author/FirstName")
+    .expand("Author")
+    .get();
+     
+    const comentario = [];
+    comentariosItems.forEach((comentarioItem) => {
+      const FechaHistorialItem = new Date(comentarioItem["Created"].toString());
+      comentario.push({
+        Comentario: comentarioItem["Comentario"],
+        Created: FechaHistorialItem.toLocaleDateString() + ' ' + FechaHistorialItem.toLocaleTimeString(),
+        Author: comentarioItem.Author.FirstName + " " + comentarioItem.Author.LastName,
+        Id: comentarioItem["Id"]
+      });
+    });
+  
+    comentario.sort((a, b) => b.Id - a.Id);
+    setCargarComentarios(comentario);
   };
   const cargarCombos = async () => {
     var itemsComboRubro: IDropdownOption[]=[];
@@ -453,6 +559,7 @@ const ProveedorPanel: React.FC<IFormularioREROProps> = (props:IFormularioREROPro
     }).then(()=> { 
       setPaisesOpciones(itemsComboPais);
     });
+    CargarProvincias();
   };
   const CargarProvincias = async ()=>{
     const provinciasLista = sp.web.lists.getByTitle('ABM_AuxiliarProveedores');
@@ -638,38 +745,77 @@ const ProveedorPanel: React.FC<IFormularioREROProps> = (props:IFormularioREROPro
       }
     }
     else {
-      const updateFields = {
-        RazonSocial: razonSocial,
-        NombreFantasia: nombreFantasia,
-        Email: email,
-        Telefono: telefono,
-        PaginaWeb: pagweb,
-        Ciudad: ciudad,
-        CodigoPostal: codpostal,
-        Calle: calle,
-        Altura: altura,
-        Departamento: depto,
-        Piso: piso,
-        Personeria: ddPersoneria.text,
-        Rubros: selectedRubrosText,
-        Pais: ddPaises.text,
-        Provincia: provinciaForm,
-    };
-    if (adjuntarArchivos.length > 0) {
-      for (const file of adjuntarArchivos) {
-          await list.items.getById(parseInt(props.id)).attachmentFiles.add(file.name, file);
-      }
-      await list.items.getById(parseInt(props.id)).update(updateFields);
-      setMessageVisible(true);
-      setMessage('Archivos adjuntos y registro actualizado exitosamente con el Id: ' + props.id);
-    } else {
-      await list.items.getById(parseInt(props.id)).update(updateFields);
-      setMessageVisible(true);
-      setMessage('Registro actualizado exitosamente con el Id: ' + props.id);
-    }
+   
+      if (adjuntarArchivos.length > 0) {
+        for (const file of adjuntarArchivos) {
+            await list.items.getById(parseInt(props.id)).attachmentFiles.add(file.name, file);
+        };
+      };
+  
+        await list.items.getById(parseInt(props.id)).update({
+          RazonSocial: razonSocial,
+          NombreFantasia: nombreFantasia,
+          Email: email,
+          Telefono: telefono,
+          PaginaWeb: pagweb,
+          Ciudad: ciudad,
+          CodigoPostal: codpostal,
+          Calle: calle,
+          Altura: altura,
+          Departamento: depto,
+          Piso: piso,
+          Personeria: ddPersoneria.text,
+          Rubros: selectedRubrosText,
+          Pais: ddPaises.text,
+          Provincia: provinciaForm,
+        });
+        if(aprobacionesVisible == true){
+          await list.items.getById(parseInt(props.id)).update({
+            Estado: 'PENDIENTE',
+            ProveedorNotificado: 'NO', 
+          });
+        }
+        await sp.web.lists.getByTitle('HistorialABMProveedores').items.add({
+          Descripcion: 'El formulario fue editado',
+          IdProveedor: props.id.toString()
+        });
+        if(aprobacionesVisible === true ){
+          await list.items.getById(parseInt(props.id)).update({
+            Estado: 'PENDIENTE',
+          });
+          await sp.web.lists.getByTitle('HistorialABMProveedores').items.add({
+            Descripcion: 'El estado ha cambiado a PENDIENTE',
+            IdProveedor: props.id.toString()
+          });
+          
+        }
+        setMessageVisible(true);
+        setMessage('Registro actualizado exitosamente con el Id: ' + props.id);
+    //  }
+      
+      
     }
     props.recargarGrilla();
   };
+  const GuardarComentario = async()=>{
+    if (!comentarioUsuarioAvanzado) {
+      // Comentario es nulo o vacío, muestra una alerta o toma otra acción
+      setMessageVisible(true); 
+        setMessage('El campo de comentario no puede estar vacío.');
+        setMessageType(MessageBarType.error);
+      return; // No continuar con el guardado si el comentario está vacío
+    }
+    setMessageVisible(false); 
+    setMessage('');
+    await sp.web.lists.getByTitle('ABMProveedoresComentarios').items.add({
+      Title: 'Comentario',
+      Comentario: comentarioUsuarioAvanzado,
+      IdRelacionado: props.id.toString(),
+      NotificarAId: { results: usuarioAvanzadoComentarioAsignado } ,
+    });
+    setComentarioUsuarioAvanzado("");
+    CargarComentarios(props.id);
+  }
   const AprobarRechazar = async (respuesta) =>{
     setMessageVisible(false);
     if (respuesta === 'RECHAZADO' && (!comentario || comentario.trim() === '')) {
@@ -682,10 +828,29 @@ const ProveedorPanel: React.FC<IFormularioREROProps> = (props:IFormularioREROPro
   if (comentario && comentario.trim() !== '') {
     historialDescripcion += ' con el siguiente comentario: ' + comentario;
   }
-    sp.web.lists.getByTitle('ABMProveedores').items.getById(parseInt(props.id)).update({
-      Observaciones: comentario,
-      Estado: respuesta,
-    });
+  // await sp.web.lists.getByTitle('ABMProveedores').items.getById(parseInt(props.id)).update({
+  //     Observaciones: comentario,
+  //     Estado: respuesta,
+  //   });
+    
+  //   if(crearUsuario == "NO"){
+  //     await sp.web.lists.getByTitle('ABMProveedores').items.getById(parseInt(props.id)).update({
+  //       CrearUsuario:'SI',
+  //     });
+  //   };
+  const itemToUpdate: ProveedorItem = {
+    Observaciones: comentario,
+    Estado: respuesta,
+    ProveedorNotificado: 'NO', 
+  };
+  
+  // if (crearUsuario === "NO") {
+  //   itemToUpdate.CrearUsuario = 'SI';
+  // }
+  
+  await sp.web.lists.getByTitle('ABMProveedores').items.getById(parseInt(props.id)).update(itemToUpdate);
+  
+  
     await sp.web.lists.getByTitle('HistorialABMProveedores').items.add({
       Descripcion: historialDescripcion,
       IdProveedor: props.id.toString()
@@ -695,8 +860,11 @@ const ProveedorPanel: React.FC<IFormularioREROProps> = (props:IFormularioREROPro
   const cerrar = async () => {
     props.recargarGrilla();
   };
+  
+  const comentarioIcon: IIconProps = { iconName: 'Comment'};
   const aprobar: IIconProps = { iconName: 'CheckMark'};
   const rechazar: IIconProps = { iconName: 'Cancel' };
+  const ZoomIn: IIconProps = { iconName: 'ZoomIn' };
   return (
     <div style={{ padding: '20px' }}>
       <div className={styles.header}>
@@ -737,6 +905,12 @@ const ProveedorPanel: React.FC<IFormularioREROProps> = (props:IFormularioREROPro
               options={personeriaOptions}
               selectedKey={ddPersoneria ? ddPersoneria.key : undefined}
               onChange={onChangePersoneria}
+            />
+            <TextField 
+              label="CUIT" 
+              value={cuit} 
+              onChange={_CuitCambia}
+              readOnly={true}
             />
           </Stack.Item>
           <Stack.Item grow>
@@ -880,11 +1054,11 @@ const ProveedorPanel: React.FC<IFormularioREROProps> = (props:IFormularioREROPro
             <ListView
               items={cargarHistorial} // El array de archivos adjuntos
               viewFields={camposHistorial}
-              selectionMode={SelectionMode.single}
+              selectionMode={SelectionMode.none}
             />
           </PivotItem>
         )}
-        {aprobacionesVisible && (
+        {perteneceGrupoUsAv && (
           <PivotItem headerText="Aprobaciones"  itemKey='aprobaciones'
             headerButtonProps={{
               'disabled': activarAprobaciones,
@@ -903,6 +1077,74 @@ const ProveedorPanel: React.FC<IFormularioREROProps> = (props:IFormularioREROPro
               <DefaultButton iconProps={aprobar} text="Aprobar" className={styles.botonAceptar} onClick={()  =>AprobarRechazar('APROBADO')}/>
               <DefaultButton iconProps={rechazar} text="Rechazar" className={styles.botonRechazar} onClick={() =>AprobarRechazar('RECHAZADO')}/>
             </Stack>
+          </PivotItem>
+        )}
+        {perteneceGrupoUsAv && (
+          <PivotItem headerText="Comentarios"  itemKey='comentarios'
+            headerButtonProps={{
+              'disabled': activarComentarios,
+            }}
+            itemIcon="Comment"
+          >
+            {cargarComentarios.length === 0 ? (
+              <MessageBar
+                messageBarType={MessageBarType.info} // Puedes ajustar el tipo de mensaje según tus necesidades
+                isMultiline={false}
+              >
+                No se realizaron comentarios aún.
+              </MessageBar>
+            ) : (
+              <ListView
+                items={cargarComentarios}
+                viewFields={camposListComentarios}
+                selectionMode={SelectionMode.none}
+              />
+            )}
+            <TextField
+              id='txtComentarios' 
+              placeholder='Comentarios' 
+              onChange={_handleChangeComentariosUsuarioAvanzado}   
+              value={comentarioUsuarioAvanzado} 
+              multiline 
+              rows={5}  
+            />
+
+            <PeoplePicker 
+              context={props.context}
+              titleText="Notificar a"
+              placeholder='Ingrese usuario'
+              personSelectionLimit={1} 
+              defaultSelectedUsers ={usuarioAvanzadoComentarioCarga}
+              showtooltip={true}  
+              disabled={false}  
+              onChange={_UsuarioNotificarComentarioCambia}
+              ensureUser={true}  
+              principalTypes={[PrincipalType.User]}  
+              resolveDelay={1000}
+            />
+            <Stack horizontal style={{ marginTop: 15, justifyContent: 'center' }}>
+              <DefaultButton iconProps={comentarioIcon} text="Comentar" className={styles.botonAceptar} onClick={()  => GuardarComentario()}/>
+            </Stack>
+            <Dialog
+              hidden={dialogComentarios}
+            >
+              <strong>  <Icon aria-label="Compass" iconName="Comment"  /><label className={styles.tituloDialogComentario}> Detalle comentario</label> </strong>
+              <Separator styles={stylesSeparador}  ></Separator>
+              <label className={styles.tituloDialogComentario}><strong>Fecha comentario:</strong></label>
+              <label > {fechaComentario}</label> 
+              <br></br>
+              <label className={styles.tituloDialogComentario}><strong>Creado por:</strong></label>
+              <label > {creadoPor}</label> 
+              <br></br>
+              <label className={styles.tituloDialogComentario}><strong>Comentario </strong></label> 
+              <br></br>
+              <label >
+              {detalleComentario}</label>
+              
+              <DialogFooter>
+                <DefaultButton  onClick={() => CerrarComentario()} text="Cerrar" />
+              </DialogFooter>
+            </Dialog>
           </PivotItem>
         )}
       </Pivot>

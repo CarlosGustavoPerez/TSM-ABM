@@ -1,4 +1,7 @@
 # tsm
+20/10/2023 - Carlos Gustavo Perez
+
+-Pestaña comentarios solo visible para usuarios pertenecientes al grupo UsuariosAvanzadosTSM
 10/10/2023 - Carlos Gustavo Perez
 
 -Modificacion estilo botones Aprobar/Rechazar

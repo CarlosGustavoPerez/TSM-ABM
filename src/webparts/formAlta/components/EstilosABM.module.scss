@@ -90,3 +90,23 @@
 .botonRechazar:hover {
   background-color:  rgb(196, 40, 20) !important; 
 }
+.filepond--credits{
+  display: none;
+}
+.btnExcel{
+  background-color: rgb(76, 175, 80);  // Color verde de Excel
+  color: white;
+}
+.divBarraSuperior{
+  background-color: rgba(213, 218, 214,0.5);
+  height: 32px;
+  padding: 5px;
+  text-align: right;
+}
+.verMasComentario{
+  cursor: pointer;
+  color: #0078d4;
+}
+.tituloDialogComentario{
+  color: #0078d4;
+}
