@@ -236,7 +236,7 @@ const ProveedorPanel: React.FC<IFormularioREROProps> = (props:IFormularioREROPro
         });
         return (
           <a style={{ cursor: 'pointer' }}
-            onClick={() => window.open(`https://termoelectricajsm.sharepoint.com/sites/PortalProveedoresDesarrollo/Lists/ABMProveedores/Attachments/${idRegistro}/${item.name}`, '_blank')}
+            onClick={() => window.open(`https://termoelectricajsm.sharepoint.com/sites/PortalProveedores/Lists/ABMProveedores/Attachments/${idRegistro}/${item.name}`, '_blank')}
           >
             {item.name}
           </a>
