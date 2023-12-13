@@ -1,4 +1,6 @@
 # tsm
+13/12/2023 - Modificacion comportamiento filtro grilla. Carlos Gustavo Perez
+
 20/10/2023 - Carlos Gustavo Perez
 
 -Pestaña comentarios solo visible para usuarios pertenecientes al grupo UsuariosAvanzadosTSM

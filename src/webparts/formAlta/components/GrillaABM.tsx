@@ -139,7 +139,7 @@ const GrillaABM: React.FC<IMasterABMProps> = (props: IMasterABMProps) => {
     setIsPanelOpen(true);
   };
   const CargarProveedores = async () => {
-    let response=null
+    let response=null;
     if(props.VerSoloCreadoPor=="SI")
     {
       let UserId;
@@ -283,6 +283,11 @@ const GrillaABM: React.FC<IMasterABMProps> = (props: IMasterABMProps) => {
           <DefaultButton className={styles.btnExcel} iconProps={iconoExcel} onClick={() => ExportarRegistros()} ariaDescription="Exportar" >Exportar</DefaultButton>
         </div>
       )}
+      <TextField
+          label={'Filtre por razón social' + resultCountText}
+          onChange={filtroCambia}
+          styles={getStyles} 
+        />
       {proveedores.length === 0 ? (
         <MessageBar>
         No existen registros.
@@ -291,11 +296,7 @@ const GrillaABM: React.FC<IMasterABMProps> = (props: IMasterABMProps) => {
         ) : (
     <div>
       
-        <TextField
-          label={'Filtre por razón social' + resultCountText}
-          onChange={filtroCambia}
-          styles={getStyles} 
-        />
+        
         
       <List items={proveedores} onRenderCell={renderProveedor} />
       <Pagination

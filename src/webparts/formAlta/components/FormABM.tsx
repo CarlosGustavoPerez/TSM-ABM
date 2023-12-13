@@ -314,7 +314,7 @@ const ProveedorPanel: React.FC<IFormularioREROProps> = (props:IFormularioREROPro
      maxWidth: 50   ,
      render: (item: any) => {
        const sID= item["Id"] ;
-       return   <Icon onClick={()=> VisibleDetalleComentario(sID)} className={styles.verMasComentario} iconName={'ZoomIn'} title="Ver Más" />
+       return   <Icon onClick={()=> VisibleDetalleComentario(sID)} className={styles.verMasComentario} iconName={'ZoomIn'} title="Ver Más" />;
      
      }     
    },
@@ -363,10 +363,10 @@ const ProveedorPanel: React.FC<IFormularioREROProps> = (props:IFormularioREROPro
       setDetalleComentario(item.Comentario);
       setCreadoPor(item.Author.FirstName + " " + item.Author.LastName,);
      });
-  }
+  };
   const CerrarComentario = async ()=>{
     setDialogComentarios(true);
-  }
+  };
   const handleDeleteFile = async (fileName) => {
     setFileToDelete(fileName); // Guarda el nombre del archivo que se va a eliminar
     setShowDeleteConfirmation(true); // Muestra el mensaje de confirmación
@@ -421,7 +421,7 @@ const ProveedorPanel: React.FC<IFormularioREROProps> = (props:IFormularioREROPro
       let personeriaIguales: boolean;
       var rubrosValue :IDropdownOption[]=[]; 
       item.Rubros.split(',').map((rubro, index) => {
-        rubrosValue.push({key:rubro.trim(), text:rubro.trim()})
+        rubrosValue.push({key:rubro.trim(), text:rubro.trim()});
       });
   // Dividir la cadena de rubros en elementos individuales
   const rubrosArray = 
@@ -450,7 +450,7 @@ const ProveedorPanel: React.FC<IFormularioREROProps> = (props:IFormularioREROPro
       setEstado(item.Estado);
       setRazonSocial(item.RazonSocial);
       setNombreFantasia(item.NombreFantasia);
-      setCuit(item.Cuit)
+      setCuit(item.Cuit);
       setDdPersoneria(opcionPersoneria);
       setDdRubros(rubrosValue);
       setEmail(item.Email);
@@ -749,8 +749,8 @@ const ProveedorPanel: React.FC<IFormularioREROProps> = (props:IFormularioREROPro
       if (adjuntarArchivos.length > 0) {
         for (const file of adjuntarArchivos) {
             await list.items.getById(parseInt(props.id)).attachmentFiles.add(file.name, file);
-        };
-      };
+        }
+      }
   
         await list.items.getById(parseInt(props.id)).update({
           RazonSocial: razonSocial,
@@ -815,7 +815,7 @@ const ProveedorPanel: React.FC<IFormularioREROProps> = (props:IFormularioREROPro
     });
     setComentarioUsuarioAvanzado("");
     CargarComentarios(props.id);
-  }
+  };
   const AprobarRechazar = async (respuesta) =>{
     setMessageVisible(false);
     if (respuesta === 'RECHAZADO' && (!comentario || comentario.trim() === '')) {
